@@ -9,8 +9,23 @@
       *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
       body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
     </style>
+    <!-- Meta Pixel -->
+    <script>
+      !function(f,b,e,v,n,t,s)
+      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+      n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t,s)}(window, document,'script',
+      'https://connect.facebook.net/en_US/fbevents.js');
+      // Pixel ID is initialized from React app via window.__META_PIXEL_ID
+      // fbq('init') is called in App.jsx to allow dynamic config
+    </script>
+    <!-- End Meta Pixel -->
   </head>
   <body>
+    <noscript><img height="1" width="1" style="display:none" src="" id="fb-noscript-pixel"/></noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

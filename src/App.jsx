@@ -1,7 +1,35 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const GOOGLE_DOC_URL = "https://docs.google.com/document/d/1RwOKuApkszB6ymPZlLFOCJqDlblILH1kGebeVUQV_vE/edit?usp=sharing";
 const WEBHOOK_URL = "https://services.leadconnectorhq.com/hooks/T63fLDPcMSkZuqHIDdrH/webhook-trigger/5d753662-0be3-4868-b526-051ba20ca161";
+
+// --- Meta Pixel / CAPI helpers ---
+function getCookie(name) {
+  const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
+  return match ? match[2] : null;
+}
+
+function generateEventId() {
+  return "evt_" + Date.now() + "_" + Math.random().toString(36).slice(2, 10);
+}
+
+function trackServerEvent({ event_name, email, name, event_id }) {
+  const payload = {
+    event_name,
+    event_id,
+    source_url: window.location.href,
+    fbp: getCookie("_fbp"),
+    fbc: getCookie("_fbc") || new URLSearchParams(window.location.search).get("fbclid"),
+  };
+  if (email) payload.email = email;
+  if (name) payload.name = name;
+
+  fetch("/api/track", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  }).catch(() => {});
+}
 
 function Modal({ open, onClose, onSubmit }) {
   const [name, setName] = useState("");
@@ -390,17 +418,54 @@ function ThankYouPage({ name }) {
 export default function App() {
   const [submitted, setSubmitted] = useState(false);
   const [userData, setUserData] = useState({ name: "" });
+  const pixelInitialized = useRef(false);
 
-  if (typeof document !== "undefined") {
-    const existing = document.querySelector('link[href*="Instrument+Serif"]');
-    if (!existing) {
+  useEffect(() => {
+    // Load Google Fonts
+    if (!document.querySelector('link[href*="Instrument+Serif"]')) {
       const link = document.createElement("link");
       link.href = "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Instrument+Serif&display=swap";
       link.rel = "stylesheet";
       document.head.appendChild(link);
     }
-  }
+
+    // Initialize Meta Pixel + fire PageView (once)
+    if (!pixelInitialized.current && typeof window.fbq === "function") {
+      pixelInitialized.current = true;
+      const pixelId = import.meta.env.VITE_META_PIXEL_ID;
+      if (pixelId) {
+        window.fbq("init", pixelId);
+        const pvEventId = generateEventId();
+        window.fbq("track", "PageView", {}, { eventID: pvEventId });
+        trackServerEvent({ event_name: "PageView", event_id: pvEventId });
+
+        // Update noscript fallback
+        const noscriptImg = document.getElementById("fb-noscript-pixel");
+        if (noscriptImg) {
+          noscriptImg.src = `https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1`;
+        }
+      }
+    }
+  }, []);
+
+  const handleSubmit = (data) => {
+    setUserData(data);
+    setSubmitted(true);
+
+    // Fire Lead event — both client-side and server-side with shared event_id for dedup
+    const leadEventId = generateEventId();
+    const pixelId = import.meta.env.VITE_META_PIXEL_ID;
+    if (pixelId && typeof window.fbq === "function") {
+      window.fbq("track", "Lead", {}, { eventID: leadEventId });
+    }
+    trackServerEvent({
+      event_name: "Lead",
+      email: data.email,
+      name: data.name,
+      event_id: leadEventId,
+    });
+  };
 
   if (submitted) return <ThankYouPage name={userData.name} />;
-  return <OptInPage onSubmit={(data) => { setUserData(data); setSubmitted(true); }} />;
+  return <OptInPage onSubmit={handleSubmit} />;
 }
