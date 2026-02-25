@@ -418,7 +418,7 @@ function ThankYouPage({ name }) {
 export default function App() {
   const [submitted, setSubmitted] = useState(false);
   const [userData, setUserData] = useState({ name: "" });
-  const pixelInitialized = useRef(false);
+  const serverPageViewSent = useRef(false);
 
   useEffect(() => {
     // Load Google Fonts
@@ -429,22 +429,10 @@ export default function App() {
       document.head.appendChild(link);
     }
 
-    // Initialize Meta Pixel + fire PageView (once)
-    if (!pixelInitialized.current && typeof window.fbq === "function") {
-      pixelInitialized.current = true;
-      const pixelId = import.meta.env.VITE_META_PIXEL_ID;
-      if (pixelId) {
-        window.fbq("init", pixelId);
-        const pvEventId = generateEventId();
-        window.fbq("track", "PageView", {}, { eventID: pvEventId });
-        trackServerEvent({ event_name: "PageView", event_id: pvEventId });
-
-        // Update noscript fallback
-        const noscriptImg = document.getElementById("fb-noscript-pixel");
-        if (noscriptImg) {
-          noscriptImg.src = `https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1`;
-        }
-      }
+    // Send server-side PageView (pixel client-side PageView fires from index.html)
+    if (!serverPageViewSent.current) {
+      serverPageViewSent.current = true;
+      trackServerEvent({ event_name: "PageView", event_id: generateEventId() });
     }
   }, []);
 
@@ -452,10 +440,9 @@ export default function App() {
     setUserData(data);
     setSubmitted(true);
 
-    // Fire Lead event — both client-side and server-side with shared event_id for dedup
+    // Fire Lead event — both client-side pixel and server-side CAPI
     const leadEventId = generateEventId();
-    const pixelId = import.meta.env.VITE_META_PIXEL_ID;
-    if (pixelId && typeof window.fbq === "function") {
+    if (typeof window.fbq === "function") {
       window.fbq("track", "Lead", {}, { eventID: leadEventId });
     }
     trackServerEvent({
