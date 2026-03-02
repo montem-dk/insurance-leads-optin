@@ -31,6 +31,17 @@ function trackServerEvent({ event_name, email, name, event_id }) {
   }).catch(() => {});
 }
 
+function getUtmParams() {
+  const params = new URLSearchParams(window.location.search);
+  const utmKeys = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"];
+  const utm = {};
+  for (const key of utmKeys) {
+    const val = params.get(key);
+    if (val) utm[key] = val;
+  }
+  return utm;
+}
+
 function Modal({ open, onClose, onSubmit }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -52,7 +63,7 @@ function Modal({ open, onClose, onSubmit }) {
       await fetch(WEBHOOK_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim(), email: email.trim() }),
+        body: JSON.stringify({ name: name.trim(), email: email.trim(), ...getUtmParams() }),
       });
     } catch (err) {}
     onSubmit({ name: name.trim(), email: email.trim() });
