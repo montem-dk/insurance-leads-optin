@@ -1,7 +1,28 @@
 import { useState, useEffect, useRef } from "react";
 
-const GOOGLE_DOC_URL = "https://docs.google.com/document/d/1RwOKuApkszB6ymPZlLFOCJqDlblILH1kGebeVUQV_vE/edit?usp=sharing";
+const GOOGLE_DOC_URL = "https://docs.google.com/document/d/1YpRDDV1Pn1xGsk4zhgfn1H1HKu7KbU-tcsWNBz_J8Ck/edit?usp=sharing";
 const WEBHOOK_URL = "https://services.leadconnectorhq.com/hooks/T63fLDPcMSkZuqHIDdrH/webhook-trigger/5d753662-0be3-4868-b526-051ba20ca161";
+const BOOKING_URL = "/book";
+
+// --- Design tokens (lynegaard.co) ---
+const colors = {
+  charcoal: "#1C1917",
+  charcoalLight: "#292524",
+  surface: "#252120",
+  gold: "#D4A574",
+  goldLight: "#E4C49A",
+  goldSubtle: "rgba(212,165,116,0.15)",
+  cream: "#FAFAF9",
+  warmGray: "#A8A29E",
+  warmGrayDark: "#78716C",
+  border: "rgba(255,255,255,0.08)",
+  borderHover: "rgba(212,165,116,0.3)",
+};
+
+const fonts = {
+  serif: "'Playfair Display', Georgia, serif",
+  sans: "'Inter', system-ui, sans-serif",
+};
 
 // --- Meta Pixel / CAPI helpers ---
 function getCookie(name) {
@@ -42,6 +63,7 @@ function getUtmParams() {
   return utm;
 }
 
+// --- Modal ---
 function Modal({ open, onClose, onSubmit }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -72,12 +94,12 @@ function Modal({ open, onClose, onSubmit }) {
   const inputStyle = {
     width: "100%",
     padding: "14px 16px",
-    fontFamily: "'IBM Plex Sans', sans-serif",
+    fontFamily: fonts.sans,
     fontSize: 16,
-    border: "1.5px solid #D4D2CC",
+    border: `1.5px solid ${colors.border}`,
     borderRadius: 8,
-    background: "#fff",
-    color: "#1A1A18",
+    background: colors.surface,
+    color: colors.cream,
     outline: "none",
     transition: "border-color 0.2s",
     boxSizing: "border-box",
@@ -88,8 +110,8 @@ function Modal({ open, onClose, onSubmit }) {
       onClick={onClose}
       style={{
         position: "fixed", inset: 0,
-        background: "rgba(20,20,18,0.5)",
-        backdropFilter: "blur(4px)",
+        background: "rgba(12,10,9,0.7)",
+        backdropFilter: "blur(8px)",
         display: "flex", alignItems: "center", justifyContent: "center",
         zIndex: 1000, padding: 24,
         animation: "fadeIn 0.2s ease",
@@ -102,7 +124,8 @@ function Modal({ open, onClose, onSubmit }) {
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: "#fff",
+          background: colors.charcoalLight,
+          border: `1px solid ${colors.border}`,
           borderRadius: 14,
           padding: "32px 28px",
           maxWidth: 420,
@@ -114,95 +137,97 @@ function Modal({ open, onClose, onSubmit }) {
         <button onClick={onClose} style={{
           position: "absolute", top: 16, right: 16,
           background: "none", border: "none", cursor: "pointer",
-          color: "#94918A", fontSize: 20, lineHeight: 1, padding: 4,
-        }}>✕</button>
+          color: colors.warmGrayDark, fontSize: 20, lineHeight: 1, padding: 4,
+        }}>&#x2715;</button>
 
         <p style={{
-          fontFamily: "'Instrument Serif', Georgia, serif",
-          fontSize: 24, fontWeight: 400, color: "#1A1A18",
+          fontFamily: fonts.serif,
+          fontSize: 24, fontWeight: 700, color: colors.cream,
           margin: "0 0 8px 0", lineHeight: 1.25,
         }}>
-          Check availability
+          Get pricing & terms
         </p>
         <p style={{
-          fontFamily: "'IBM Plex Sans', sans-serif",
-          fontSize: 14, color: "#6B6960", lineHeight: 1.5,
+          fontFamily: fonts.sans,
+          fontSize: 14, color: colors.warmGray, lineHeight: 1.5,
           margin: "0 0 24px 0",
         }}>
-          Enter your details and I'll send over pricing, volume, and how to start a 10-lead trial.
+          We'll send you a short Google Doc with pricing, lead volume, and terms for a 10-lead trial. No call required - just the info.
         </p>
 
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: 14 }}>
             <label style={{
-              display: "block", fontFamily: "'IBM Plex Sans', sans-serif",
-              fontSize: 13, fontWeight: 500, color: "#1A1A18",
+              display: "block", fontFamily: fonts.sans,
+              fontSize: 13, fontWeight: 500, color: colors.warmGray,
               marginBottom: 6, letterSpacing: "0.02em",
             }}>First name</label>
             <input
               type="text" value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="John" required style={inputStyle}
-              onFocus={(e) => e.target.style.borderColor = "#1A1A18"}
-              onBlur={(e) => e.target.style.borderColor = "#D4D2CC"}
+              onFocus={(e) => e.target.style.borderColor = colors.gold}
+              onBlur={(e) => e.target.style.borderColor = colors.border}
               autoFocus
             />
           </div>
           <div style={{ marginBottom: 22 }}>
             <label style={{
-              display: "block", fontFamily: "'IBM Plex Sans', sans-serif",
-              fontSize: 13, fontWeight: 500, color: "#1A1A18",
+              display: "block", fontFamily: fonts.sans,
+              fontSize: 13, fontWeight: 500, color: colors.warmGray,
               marginBottom: 6, letterSpacing: "0.02em",
             }}>Email</label>
             <input
               type="email" value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="john@example.com" required style={inputStyle}
-              onFocus={(e) => e.target.style.borderColor = "#1A1A18"}
-              onBlur={(e) => e.target.style.borderColor = "#D4D2CC"}
+              placeholder="john@agency.com" required style={inputStyle}
+              onFocus={(e) => e.target.style.borderColor = colors.gold}
+              onBlur={(e) => e.target.style.borderColor = colors.border}
             />
           </div>
           <button type="submit" disabled={loading} style={{
             width: "100%", padding: "15px 24px",
-            fontFamily: "'IBM Plex Sans', sans-serif",
-            fontSize: 16, fontWeight: 600, color: "#fff",
-            background: loading ? "#94918A" : "#1A1A18",
+            fontFamily: fonts.sans,
+            fontSize: 16, fontWeight: 600,
+            color: colors.charcoal,
+            background: loading ? colors.warmGrayDark : colors.gold,
             border: "none", borderRadius: 8,
             cursor: loading ? "default" : "pointer",
             transition: "all 0.2s",
           }}
-            onMouseEnter={(e) => { if (!loading) e.target.style.background = "#333330" }}
-            onMouseLeave={(e) => { if (!loading) e.target.style.background = "#1A1A18" }}
+            onMouseEnter={(e) => { if (!loading) e.target.style.background = colors.goldLight }}
+            onMouseLeave={(e) => { if (!loading) e.target.style.background = colors.gold }}
           >
-            {loading ? "One moment..." : "Check availability →"}
+            {loading ? "One moment..." : "Send me the details"}
           </button>
         </form>
 
         <p style={{
-          fontFamily: "'IBM Plex Sans', sans-serif",
-          fontSize: 12, color: "#94918A",
+          fontFamily: fonts.sans,
+          fontSize: 12, color: colors.warmGrayDark,
           marginTop: 12, textAlign: "center",
-        }}>No sales call. Details sent instantly.</p>
+        }}>No calls. No follow-up pressure. Just the document.</p>
       </div>
     </div>
   );
 }
 
+// --- Landing Page ---
 function OptInPage({ onSubmit }) {
   const [modalOpen, setModalOpen] = useState(false);
 
   const bulletStyle = {
-    fontFamily: "'IBM Plex Sans', sans-serif",
-    fontSize: 16,
-    lineHeight: 1.5,
-    color: "#3A3935",
+    fontFamily: fonts.sans,
+    fontSize: 15,
+    lineHeight: 1.6,
+    color: colors.warmGray,
     display: "flex",
     alignItems: "flex-start",
-    gap: 10,
+    gap: 12,
   };
 
   const checkIcon = (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2D8C2D" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 2 }}>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={colors.gold} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 3 }}>
       <polyline points="20 6 9 17 4 12" />
     </svg>
   );
@@ -213,72 +238,79 @@ function OptInPage({ onSubmit }) {
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      background: "#FAFAF8",
+      background: colors.charcoal,
       padding: "24px",
     }}>
-      <div style={{ maxWidth: 520, width: "100%" }}>
+      {/* Subtle noise texture */}
+      <div style={{
+        position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0,
+        backgroundImage: `radial-gradient(ellipse at 20% 50%, rgba(212,165,116,0.04) 0%, transparent 60%),
+                          radial-gradient(ellipse at 80% 20%, rgba(212,165,116,0.03) 0%, transparent 50%)`,
+      }} />
+
+      <div style={{ maxWidth: 520, width: "100%", position: "relative", zIndex: 1 }}>
 
         {/* Availability tag */}
         <div style={{
           display: "inline-flex",
           alignItems: "center",
           gap: 8,
-          background: "#EEFBEE",
-          border: "1px solid #C8E6C8",
+          background: colors.goldSubtle,
+          border: `1px solid ${colors.borderHover}`,
           borderRadius: 100,
           padding: "6px 14px",
-          marginBottom: 24,
+          marginBottom: 28,
         }}>
           <span style={{
             width: 8, height: 8, borderRadius: "50%",
-            background: "#2D8C2D",
+            background: colors.gold,
             display: "inline-block",
           }} />
           <span style={{
-            fontFamily: "'IBM Plex Sans', sans-serif",
-            fontSize: 13, fontWeight: 500, color: "#2D6B2D",
+            fontFamily: fonts.sans,
+            fontSize: 13, fontWeight: 500, color: colors.gold,
           }}>
-            Accepting new agents — limited spots
+            Accepting new agents - limited spots
           </span>
         </div>
 
-        {/* Headline — transactional */}
+        {/* Headline */}
         <h1 style={{
-          fontFamily: "'Instrument Serif', Georgia, serif",
+          fontFamily: fonts.serif,
           fontSize: "clamp(32px, 6vw, 46px)",
-          fontWeight: 400,
-          lineHeight: 1.15,
-          color: "#1A1A18",
-          margin: "0 0 16px 0",
+          fontWeight: 700,
+          lineHeight: 1.1,
+          color: colors.cream,
+          margin: "0 0 20px 0",
         }}>
-          Exclusive life insurance leads.
+          Exclusive term life leads.
           <br />
-          <span style={{ color: "#94918A" }}>Pay per lead. No retainer.</span>
+          <span style={{ color: colors.warmGrayDark }}>Pay per lead. No retainer.</span>
         </h1>
 
-        {/* Subhead — expectation setter */}
+        {/* Subhead */}
         <p style={{
-          fontFamily: "'IBM Plex Sans', -apple-system, sans-serif",
+          fontFamily: fonts.sans,
           fontSize: 17,
           lineHeight: 1.6,
-          color: "#52504A",
-          margin: "0 0 28px 0",
+          color: colors.warmGray,
+          margin: "0 0 32px 0",
         }}>
-          For established life insurance agents who can pick up the phone and close. Not shared leads. Not aged leads. Fresh, exclusive, yours only.
+          For life insurance agents who can pick up the phone and close. Not shared leads. Not aged leads. Fresh, exclusive, yours only.
         </p>
 
-        {/* Bullets — transactional, scannable */}
+        {/* Bullets */}
         <div style={{
           display: "flex",
           flexDirection: "column",
-          gap: 12,
-          marginBottom: 32,
+          gap: 14,
+          marginBottom: 36,
         }}>
-          <div style={bulletStyle}>{checkIcon} <span><strong style={{ color: "#1A1A18", fontWeight: 600 }}>Pay per lead</strong> — no retainers, no ad spend, no monthly commitment</span></div>
-          <div style={bulletStyle}>{checkIcon} <span><strong style={{ color: "#1A1A18", fontWeight: 600 }}>100% exclusive</strong> — every lead goes to one agent only</span></div>
-          <div style={bulletStyle}>{checkIcon} <span><strong style={{ color: "#1A1A18", fontWeight: 600 }}>Capped volume</strong> — limited leads per area to protect quality</span></div>
-          <div style={bulletStyle}>{checkIcon} <span><strong style={{ color: "#1A1A18", fontWeight: 600 }}>48-hour delivery</strong> — start receiving leads within two days</span></div>
-          <div style={bulletStyle}>{checkIcon} <span><strong style={{ color: "#1A1A18", fontWeight: 600 }}>Money-back guarantee</strong> — test 10 leads risk-free</span></div>
+          <div style={bulletStyle}>{checkIcon} <span><strong style={{ color: colors.cream, fontWeight: 600 }}>Pay per lead</strong> - no retainers, no ad spend, no monthly fees</span></div>
+          <div style={bulletStyle}>{checkIcon} <span><strong style={{ color: colors.cream, fontWeight: 600 }}>100% exclusive</strong> - every lead goes to one agent only</span></div>
+          <div style={bulletStyle}>{checkIcon} <span><strong style={{ color: colors.cream, fontWeight: 600 }}>Capped volume</strong> - limited leads per area to protect quality</span></div>
+          <div style={bulletStyle}>{checkIcon} <span><strong style={{ color: colors.cream, fontWeight: 600 }}>48-hour delivery</strong> - start receiving leads within two days</span></div>
+          <div style={bulletStyle}>{checkIcon} <span><strong style={{ color: colors.cream, fontWeight: 600 }}>Money-back guarantee</strong> - test 10 leads risk-free</span></div>
         </div>
 
         {/* CTA */}
@@ -287,28 +319,28 @@ function OptInPage({ onSubmit }) {
           style={{
             width: "100%",
             padding: "18px 24px",
-            fontFamily: "'IBM Plex Sans', sans-serif",
+            fontFamily: fonts.sans,
             fontSize: 17,
             fontWeight: 600,
-            color: "#fff",
-            background: "#1A1A18",
+            color: colors.charcoal,
+            background: colors.gold,
             border: "none",
             borderRadius: 8,
             cursor: "pointer",
             transition: "all 0.2s",
             letterSpacing: "0.01em",
           }}
-          onMouseEnter={(e) => e.target.style.background = "#333330"}
-          onMouseLeave={(e) => e.target.style.background = "#1A1A18"}
+          onMouseEnter={(e) => e.target.style.background = colors.goldLight}
+          onMouseLeave={(e) => e.target.style.background = colors.gold}
         >
-          Check availability →
+          See pricing & terms
         </button>
 
-        {/* Not-for line */}
+        {/* Qualifier line */}
         <p style={{
-          fontFamily: "'IBM Plex Sans', sans-serif",
+          fontFamily: fonts.sans,
           fontSize: 13,
-          color: "#94918A",
+          color: colors.warmGrayDark,
           marginTop: 16,
           textAlign: "center",
         }}>
@@ -325,6 +357,101 @@ function OptInPage({ onSubmit }) {
   );
 }
 
+// --- Booking Page ---
+function BookingPage() {
+  const iframeRef = useRef(null);
+
+  useEffect(() => {
+    // Load GHL form embed script
+    if (!document.querySelector('script[src*="form_embed"]')) {
+      const script = document.createElement("script");
+      script.src = "https://link.msgsndr.com/js/form_embed.js";
+      script.type = "text/javascript";
+      document.body.appendChild(script);
+    }
+  }, []);
+
+  return (
+    <div style={{
+      minHeight: "100vh",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      background: colors.charcoal,
+      padding: "40px 24px 24px",
+    }}>
+      {/* Background glow */}
+      <div style={{
+        position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0,
+        backgroundImage: `radial-gradient(ellipse at 50% 30%, rgba(212,165,116,0.05) 0%, transparent 60%)`,
+      }} />
+
+      <div style={{ maxWidth: 600, width: "100%", position: "relative", zIndex: 1 }}>
+        {/* Back link */}
+        <a href="/"
+          style={{
+            fontFamily: fonts.sans,
+            fontSize: 14, color: colors.warmGrayDark,
+            textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6,
+            marginBottom: 28, transition: "color 0.2s",
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.color = colors.warmGray}
+          onMouseLeave={(e) => e.currentTarget.style.color = colors.warmGrayDark}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12" />
+            <polyline points="12 19 5 12 12 5" />
+          </svg>
+          Back
+        </a>
+
+        <h1 style={{
+          fontFamily: fonts.serif,
+          fontSize: "clamp(24px, 4vw, 32px)",
+          fontWeight: 700, lineHeight: 1.2, color: colors.cream,
+          margin: "0 0 8px 0",
+        }}>
+          Book a 15-min intro call
+        </h1>
+
+        <p style={{
+          fontFamily: fonts.sans,
+          fontSize: 15, lineHeight: 1.6, color: colors.warmGray,
+          margin: "0 0 28px 0",
+        }}>
+          Pick a time that works for you. We'll confirm your area, discuss volume, and answer any questions.
+        </p>
+
+        {/* GHL Calendar Embed */}
+        <div style={{
+          background: colors.charcoalLight,
+          border: `1px solid ${colors.border}`,
+          borderRadius: 12,
+          overflow: "hidden",
+          minHeight: 600,
+        }}>
+          <iframe
+            ref={iframeRef}
+            src="https://api.leadconnectorhq.com/widget/booking/u27q4eHgWZuMke5hvBKe"
+            style={{ width: "100%", border: "none", overflow: "hidden", minHeight: 600 }}
+            scrolling="no"
+            id="pplus-booking-embed"
+          />
+        </div>
+
+        <p style={{
+          fontFamily: fonts.sans,
+          fontSize: 13, color: colors.warmGrayDark, marginTop: 20,
+          textAlign: "center",
+        }}>
+          All times shown in your local timezone.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// --- Thank You Page ---
 function ThankYouPage({ name }) {
   const firstName = name ? name.split(" ")[0] : "";
 
@@ -334,108 +461,177 @@ function ThankYouPage({ name }) {
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      background: "#FAFAF8",
+      background: colors.charcoal,
       padding: "24px",
     }}>
-      <div style={{ maxWidth: 520, width: "100%" }}>
+      {/* Background glow */}
+      <div style={{
+        position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0,
+        backgroundImage: `radial-gradient(ellipse at 30% 40%, rgba(212,165,116,0.05) 0%, transparent 60%)`,
+      }} />
 
+      <div style={{ maxWidth: 520, width: "100%", position: "relative", zIndex: 1 }}>
+
+        {/* Check icon */}
         <div style={{
           width: 48, height: 48, borderRadius: "50%",
-          background: "#E8F5E8",
+          background: colors.goldSubtle,
           display: "flex", alignItems: "center", justifyContent: "center",
           marginBottom: 24,
         }}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2D8C2D" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={colors.gold} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="20 6 9 17 4 12" />
           </svg>
         </div>
 
+        {/* Heading */}
         <h1 style={{
-          fontFamily: "'Instrument Serif', Georgia, serif",
+          fontFamily: fonts.serif,
           fontSize: "clamp(28px, 5vw, 38px)",
-          fontWeight: 400, lineHeight: 1.2, color: "#1A1A18",
+          fontWeight: 700, lineHeight: 1.2, color: colors.cream,
           margin: "0 0 20px 0",
         }}>
           {firstName ? `Got it, ${firstName}.` : "Got it."}
         </h1>
 
+        {/* Description */}
         <p style={{
-          fontFamily: "'IBM Plex Sans', -apple-system, sans-serif",
-          fontSize: 17, lineHeight: 1.65, color: "#52504A",
+          fontFamily: fonts.sans,
+          fontSize: 17, lineHeight: 1.65, color: colors.warmGray,
           margin: "0 0 12px 0",
         }}>
-          Here's the full breakdown — how leads are generated, pricing per lead, volume availability for your area, and how to start a risk-free 10-lead trial.
+          I'm sending you a document with the full breakdown - how leads are generated, pricing, volume availability for your area, and how to start a risk-free 10-lead trial.
         </p>
 
         <p style={{
-          fontFamily: "'IBM Plex Sans', -apple-system, sans-serif",
-          fontSize: 17, lineHeight: 1.65, color: "#52504A",
+          fontFamily: fonts.sans,
+          fontSize: 17, lineHeight: 1.65, color: colors.warmGray,
           margin: "0 0 32px 0",
         }}>
-          3-minute read. Straight to the point.
+          In the meantime - let's find a time to talk.
         </p>
 
-        <a href={GOOGLE_DOC_URL} target="_blank" rel="noopener noreferrer"
+        {/* Primary CTA: Book a call */}
+        <a href={BOOKING_URL}
           style={{
-            display: "flex", alignItems: "center", justifyContent: "center", gap: 12,
+            display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
             width: "100%", padding: "16px 24px",
-            fontFamily: "'IBM Plex Sans', sans-serif",
-            fontSize: 16, fontWeight: 600, color: "#fff",
-            background: "#1A1A18", border: "none", borderRadius: 8,
+            fontFamily: fonts.sans,
+            fontSize: 16, fontWeight: 600,
+            color: colors.charcoal,
+            background: colors.gold,
+            border: "none", borderRadius: 8,
             cursor: "pointer", textDecoration: "none",
             transition: "all 0.2s", letterSpacing: "0.01em", boxSizing: "border-box",
           }}
-          onMouseEnter={(e) => e.currentTarget.style.background = "#333330"}
-          onMouseLeave={(e) => e.currentTarget.style.background = "#1A1A18"}
+          onMouseEnter={(e) => e.currentTarget.style.background = colors.goldLight}
+          onMouseLeave={(e) => e.currentTarget.style.background = colors.gold}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+            <line x1="16" y1="2" x2="16" y2="6" />
+            <line x1="8" y1="2" x2="8" y2="6" />
+            <line x1="3" y1="10" x2="21" y2="10" />
+          </svg>
+          Book a 15-min intro call
+        </a>
+
+        {/* Secondary CTA: Google Doc */}
+        <a href={GOOGLE_DOC_URL} target="_blank" rel="noopener noreferrer"
+          style={{
+            display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+            width: "100%", padding: "14px 24px",
+            fontFamily: fonts.sans,
+            fontSize: 15, fontWeight: 500,
+            color: colors.gold,
+            background: "transparent",
+            border: `1px solid ${colors.borderHover}`,
+            borderRadius: 8,
+            cursor: "pointer", textDecoration: "none",
+            transition: "all 0.2s", letterSpacing: "0.01em", boxSizing: "border-box",
+            marginTop: 12,
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = colors.gold;
+            e.currentTarget.style.background = "rgba(212,165,116,0.05)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = colors.borderHover;
+            e.currentTarget.style.background = "transparent";
+          }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
             <polyline points="14 2 14 8 20 8" />
             <line x1="16" y1="13" x2="8" y2="13" />
             <line x1="16" y1="17" x2="8" y2="17" />
-            <polyline points="10 9 9 9 8 9" />
           </svg>
-          See pricing & availability →
+          Read the full breakdown
         </a>
 
+        {/* Info box */}
         <div style={{
-          marginTop: 36, padding: "20px 24px",
-          background: "#F3F2EE", borderRadius: 10,
+          marginTop: 32, padding: "20px 24px",
+          background: colors.charcoalLight,
+          border: `1px solid ${colors.border}`,
+          borderRadius: 10,
         }}>
           <p style={{
-            fontFamily: "'IBM Plex Sans', sans-serif",
-            fontSize: 14, fontWeight: 600, color: "#1A1A18",
+            fontFamily: fonts.sans,
+            fontSize: 14, fontWeight: 600, color: colors.cream,
             margin: "0 0 8px 0",
-          }}>Ready to start?</p>
-          <p style={{
-            fontFamily: "'IBM Plex Sans', sans-serif",
-            fontSize: 14, lineHeight: 1.6, color: "#52504A", margin: 0,
-          }}>
-            There's a WhatsApp link at the bottom of the document. Message me your area and volume — I'll confirm availability and get your first 10 leads delivered within 48 hours.
-          </p>
+          }}>What happens next?</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <p style={{
+              fontFamily: fonts.sans,
+              fontSize: 14, lineHeight: 1.6, color: colors.warmGray, margin: 0,
+              display: "flex", alignItems: "flex-start", gap: 8,
+            }}>
+              <span style={{ color: colors.gold, fontWeight: 600, flexShrink: 0 }}>1.</span>
+              Check your email for the pricing document
+            </p>
+            <p style={{
+              fontFamily: fonts.sans,
+              fontSize: 14, lineHeight: 1.6, color: colors.warmGray, margin: 0,
+              display: "flex", alignItems: "flex-start", gap: 8,
+            }}>
+              <span style={{ color: colors.gold, fontWeight: 600, flexShrink: 0 }}>2.</span>
+              Book a quick call so we can confirm your area and volume
+            </p>
+            <p style={{
+              fontFamily: fonts.sans,
+              fontSize: 14, lineHeight: 1.6, color: colors.warmGray, margin: 0,
+              display: "flex", alignItems: "flex-start", gap: 8,
+            }}>
+              <span style={{ color: colors.gold, fontWeight: 600, flexShrink: 0 }}>3.</span>
+              Start receiving leads within 48 hours
+            </p>
+          </div>
         </div>
 
         <p style={{
-          fontFamily: "'IBM Plex Sans', sans-serif",
-          fontSize: 13, color: "#94918A", marginTop: 32,
+          fontFamily: fonts.sans,
+          fontSize: 13, color: colors.warmGrayDark, marginTop: 28,
         }}>
-          Also sent to your email for reference.
+          Document also sent to your email for reference.
         </p>
       </div>
     </div>
   );
 }
 
+// --- App ---
 export default function App() {
   const [submitted, setSubmitted] = useState(false);
   const [userData, setUserData] = useState({ name: "" });
   const serverPageViewSent = useRef(false);
+  const [path, setPath] = useState(window.location.pathname);
 
   useEffect(() => {
-    // Load Google Fonts
-    if (!document.querySelector('link[href*="Instrument+Serif"]')) {
+    // Load Google Fonts (Playfair Display + Inter)
+    if (!document.querySelector('link[href*="Playfair+Display"]')) {
       const link = document.createElement("link");
-      link.href = "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Instrument+Serif&display=swap";
+      link.href = "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@400;700&display=swap";
       link.rel = "stylesheet";
       document.head.appendChild(link);
     }
@@ -445,13 +641,18 @@ export default function App() {
       serverPageViewSent.current = true;
       trackServerEvent({ event_name: "PageView", event_id: generateEventId() });
     }
+
+    // Listen for popstate (browser back/forward)
+    const handlePopState = () => setPath(window.location.pathname);
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
   }, []);
 
   const handleSubmit = (data) => {
     setUserData(data);
     setSubmitted(true);
 
-    // Fire Lead event — both client-side pixel and server-side CAPI
+    // Fire Lead event - both client-side pixel and server-side CAPI
     const leadEventId = generateEventId();
     if (typeof window.fbq === "function") {
       window.fbq("track", "Lead", {}, { eventID: leadEventId });
@@ -464,6 +665,8 @@ export default function App() {
     });
   };
 
+  // Simple path routing
+  if (path === "/book") return <BookingPage />;
   if (submitted) return <ThankYouPage name={userData.name} />;
   return <OptInPage onSubmit={handleSubmit} />;
 }
